@@ -2,6 +2,10 @@
 
 Static, security-first Python web app to catalog and publish a map of known local datacenter-related facilities (business datacenters, local government facilities, colocation sites, telco central offices, etc.).
 
+## Documentation
+
+- For complete installation, usage, CLI, API, operations, and troubleshooting guidance, see `USER_GUIDE.md`.
+
 ## Project Goal
 
 Build a small, containerized Python application that:
@@ -168,6 +172,10 @@ No POST/PUT/DELETE endpoints exposed publicly in v1.
 - Persist DB via named volume.
 - Back up DB daily (logical dump).
 - Keep `.env` out of git; provide `.env.example`.
+
+### Container images (CI)
+
+GitHub Actions (`.github/workflows/docker.yml`) builds the app image from `Dockerfile` on pushes to `main`, pull requests against `main`, version tags (`v*`), and manual workflow dispatch. Successful builds on `main` and tagged releases are published to GitHub Container Registry as `ghcr.io/<owner>/dcmapper` (`latest`, semver tags, and `sha-<commit>`). Pull requests build the image but do not push.
 
 ## Future Enhancements (Optional)
 

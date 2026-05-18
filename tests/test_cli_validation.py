@@ -1,7 +1,7 @@
 import pytest
 import typer
 
-from tools.admin_cli import validate_latitude, validate_longitude
+from tools.admin_cli import validate_latitude, validate_longitude, validate_source
 
 
 def test_validate_latitude_valid():
@@ -20,3 +20,12 @@ def test_validate_longitude_valid():
 def test_validate_longitude_invalid():
     with pytest.raises(typer.BadParameter):
         validate_longitude(-181.0)
+
+
+def test_validate_source_rejects_empty():
+    with pytest.raises(typer.BadParameter):
+        validate_source("   ")
+
+
+def test_validate_source_accepts_https_url():
+    assert validate_source("https://example.org/reference") == "https://example.org/reference"

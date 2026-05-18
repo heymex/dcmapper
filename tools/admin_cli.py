@@ -3,6 +3,7 @@ import csv
 import json
 from decimal import Decimal
 from pathlib import Path
+from urllib.parse import urlparse
 
 import typer
 from sqlalchemy import select
@@ -25,6 +26,17 @@ def validate_longitude(value: float) -> float:
     return value
 
 
+def validate_source(value: str) -> str:
+    source = value.strip()
+    if not source:
+        raise typer.BadParameter("Source / citation cannot be empty.")
+    if source.startswith(("http://", "https://")):
+        parsed = urlparse(source)
+        if not parsed.netloc:
+            raise typer.BadParameter("Source URL must include a valid host.")
+    return source
+
+
 def _ensure_schema() -> None:
     Base.metadata.create_all(bind=engine)
 
@@ -45,7 +57,7 @@ def _location_from_dict(record: dict, admin: str) -> Location:
     entity_type = EntityType(str(record["entity_type"]).strip())
     latitude = Decimal(str(validate_latitude(float(record["latitude"]))))
     longitude = Decimal(str(validate_longitude(float(record["longitude"]))))
-    source = str(record["source"]).strip()
+    source = validate_source(str(record["source"]))
     status = SiteStatus(str(record.get("status", "known")).strip())
     confidence = int(record.get("confidence", 3))
     if confidence < 1 or confidence > 5:
@@ -82,7 +94,7 @@ def add_location() -> None:
     ).strip()
     latitude = validate_latitude(typer.prompt("Latitude", type=float))
     longitude = validate_longitude(typer.prompt("Longitude", type=float))
-    source = typer.prompt("Source / citation").strip()
+    source = validate_source(typer.prompt("Source / citation"))
 
     city = typer.prompt("City", default="").strip() or None
     region = typer.prompt("Region/State", default="").strip() or None
