@@ -20,13 +20,14 @@ def _client_key(request: Request) -> str:
 def apply_security_headers(response) -> None:
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
-    response.headers["Referrer-Policy"] = "same-origin"
+    # strict-origin-when-cross-origin sends origin on HTTPS tile requests (required by many tile CDNs).
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
     response.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
         "style-src 'self' https://unpkg.com; "
         "script-src 'self' https://unpkg.com; "
-        "img-src 'self' data: https://*.tile.openstreetmap.org; "
+        "img-src 'self' data: https://*.basemaps.cartocdn.com; "
         "connect-src 'self'; "
         "object-src 'none'; "
         "base-uri 'self'; "

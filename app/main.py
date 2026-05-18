@@ -47,6 +47,12 @@ async def hardening_middleware(request: Request, call_next):
 
     response = await call_next(request)
     apply_security_headers(response)
+    if request.url.path.startswith("/static/"):
+        # Avoid CDN/browser serving stale JS after deploys (Cloudflare was caching map.js 4h).
+        if request.url.path.endswith(".js"):
+            response.headers["Cache-Control"] = "no-cache"
+        elif request.url.path.endswith((".png", ".jpg", ".webp", ".svg")):
+            response.headers["Cache-Control"] = "public, max-age=86400"
     return response
 
 

@@ -1,0 +1,55 @@
+# Production/Komodo deployment (Traefik + GHCR image). Copy to compose.yaml in Komodo stack dir.
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: dcmapper
+      POSTGRES_USER: dcmapper
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dcmapper}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dcmapper -d dcmapper"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal
+    labels:
+      komodo.managed: "true"
+
+  web:
+    image: ghcr.io/heymex/dcmapper:${DCMAPPER_IMAGE_TAG:-latest}
+    container_name: dcmapper-roch-web
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg2://dcmapper:${POSTGRES_PASSWORD:-dcmapper}@db:5432/dcmapper
+      DCMAPPER_ADMIN_NAME: ${DCMAPPER_ADMIN_NAME:-admin}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://dcmapper-roch.vdolan.com}
+      RATE_LIMIT_WINDOW_SECONDS: ${RATE_LIMIT_WINDOW_SECONDS:-60}
+      RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS:-120}
+      DCMAPPER_AUTO_CREATE_SCHEMA: ${DCMAPPER_AUTO_CREATE_SCHEMA:-false}
+    networks:
+      - internal
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.dcmapper-roch.rule=Host(`${DCMAPPER_DOMAIN:?set DCMAPPER_DOMAIN in .env}`)"
+      - "traefik.http.routers.dcmapper-roch.entrypoints=websecure"
+      - "traefik.http.routers.dcmapper-roch.tls.certresolver=${DCMAPPER_CERT_RESOLVER:-cf}"
+      - "traefik.http.services.dcmapper-roch.loadbalancer.server.port=8000"
+      - "komodo.managed=true"
+
+volumes:
+  pgdata:
+
+networks:
+  internal:
+  proxy:
+    external: true
+    name: proxy

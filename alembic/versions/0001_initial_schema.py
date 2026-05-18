@@ -17,9 +17,17 @@ depends_on = None
 
 def upgrade() -> None:
     entity_type = sa.Enum(
-        "enterprise", "government", "colo", "telco_co", "other", name="entity_type"
+        "enterprise",
+        "government",
+        "colo",
+        "telco_co",
+        "other",
+        name="entity_type",
+        create_type=False,
     )
-    site_status = sa.Enum("known", "suspected", "retired", name="site_status")
+    site_status = sa.Enum(
+        "known", "suspected", "retired", name="site_status", create_type=False
+    )
 
     bind = op.get_bind()
     entity_type.create(bind, checkfirst=True)

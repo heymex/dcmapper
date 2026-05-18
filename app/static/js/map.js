@@ -1,8 +1,17 @@
-const map = L.map("map").setView([39.5, -98.35], 4);
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "/static/img/leaflet/marker-icon-2x.png",
+  iconUrl: "/static/img/leaflet/marker-icon.png",
+  shadowUrl: "/static/img/leaflet/marker-shadow.png",
+});
 
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  maxZoom: 19,
-  attribution: "&copy; OpenStreetMap contributors",
+const map = L.map("map").setView([44.02, -92.47], 11);
+
+L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+  subdomains: "abcd",
+  maxZoom: 20,
+  attribution:
+    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
 }).addTo(map);
 
 async function loadLocations() {
