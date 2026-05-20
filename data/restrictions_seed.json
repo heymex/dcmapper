@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Inver Grove Heights, MN",
+    "jurisdiction_type": "city",
+    "restriction_kind": "moratorium",
+    "lifecycle_status": "active",
+    "start_date": "2026-05-12",
+    "end_date": "2027-05-12",
+    "center_latitude": 44.848,
+    "center_longitude": -93.042,
+    "radius_km": 4.5,
+    "source": "https://www.datacenterdynamics.com/en/news/minnesota-data-center-sold-landmark-dividend-55m/",
+    "notes": "One-year moratorium approved May 2026 while the city reviews zoning for data centers. Triggered in part by a proposed T5 Data Centers campus at 5890 Carmen Avenue.",
+    "is_public": true
+  },
+  {
+    "name": "Rosemount, MN",
+    "jurisdiction_type": "city",
+    "restriction_kind": "moratorium",
+    "lifecycle_status": "active",
+    "start_date": "2026-04-15",
+    "end_date": "2027-04-15",
+    "center_latitude": 44.739,
+    "center_longitude": -93.125,
+    "radius_km": 4.5,
+    "source": "https://www.datacenterdynamics.com/en/news/minnesota-data-center-sold-landmark-dividend-55m/",
+    "notes": "One-year moratorium enacted mid-April 2026 on data center construction.",
+    "is_public": true
+  },
+  {
+    "name": "Minneapolis, MN",
+    "jurisdiction_type": "city",
+    "restriction_kind": "moratorium",
+    "lifecycle_status": "proposed",
+    "start_date": null,
+    "end_date": null,
+    "center_latitude": 44.977,
+    "center_longitude": -93.265,
+    "radius_km": 12,
+    "source": "https://www.datacenterdynamics.com/en/news/minnesota-data-center-sold-landmark-dividend-55m/",
+    "notes": "Minneapolis City Council scheduled to vote on a temporary moratorium as of May 2026 reporting.",
+    "is_public": true
+  }
+]

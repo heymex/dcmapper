@@ -24,7 +24,62 @@ body {
   font-size: 0.9rem;
 }
 
+main {
+  position: relative;
+}
+
 #map {
   width: 100%;
   height: calc(100vh - 72px);
+}
+
+.map-legend {
+  position: absolute;
+  right: 12px;
+  bottom: 24px;
+  z-index: 1000;
+  background: rgba(17, 24, 39, 0.92);
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  max-width: 220px;
+}
+
+.legend-title {
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+  color: #f8fafc;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.2rem;
+}
+
+.swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.swatch.moratorium {
+  background: rgba(249, 115, 22, 0.65);
+}
+
+.swatch.proposed {
+  background: rgba(251, 191, 36, 0.55);
+}
+
+.swatch.ban {
+  background: rgba(239, 68, 68, 0.7);
+}
+
+.swatch.facility {
+  background: #2563eb;
 }
