@@ -1,4 +1,21 @@
 # Production/Komodo deployment (Traefik + GHCR image). Copy to compose.yaml in Komodo stack dir.
+#
+# SECURITY: Always pin to an immutable image reference for production deployments.
+# Use one of the following methods (in order of security preference):
+#
+# 1. Digest pinning (most secure - immutable):
+#    DCMAPPER_IMAGE_TAG=sha-abc123@sha256:def456...
+#
+# 2. SHA-based tag (immutable):
+#    DCMAPPER_IMAGE_TAG=sha-abc123
+#
+# 3. Semantic version tag (mutable - not recommended for production):
+#    DCMAPPER_IMAGE_TAG=v1.0.0
+#
+# Find available SHA tags and digests at:
+# https://github.com/heymex/dcmapper/pkgs/container/dcmapper
+#
+# DCMAPPER_IMAGE_TAG is REQUIRED and has no default to prevent accidental use of mutable tags.
 services:
   db:
     image: postgres:16-alpine
@@ -20,7 +37,7 @@ services:
       komodo.managed: "true"
 
   web:
-    image: ghcr.io/heymex/dcmapper:${DCMAPPER_IMAGE_TAG:-latest}
+    image: ghcr.io/heymex/dcmapper:${DCMAPPER_IMAGE_TAG:?DCMAPPER_IMAGE_TAG must be set to an immutable image reference (sha-* tag or digest). See comments above for details.}
     container_name: dcmapper-roch-web
     restart: unless-stopped
     depends_on:

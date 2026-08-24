@@ -5,6 +5,7 @@ Static, security-first Python web app to catalog and publish a map of known loca
 ## Documentation
 
 - For complete installation, usage, CLI, API, operations, and troubleshooting guidance, see `USER_GUIDE.md`.
+- For production deployment with secure image pinning, see `DEPLOYMENT.md`.
 
 ## Project Goal
 
@@ -172,10 +173,17 @@ No POST/PUT/DELETE endpoints exposed publicly in v1.
 - Persist DB via named volume.
 - Back up DB daily (logical dump).
 - Keep `.env` out of git; provide `.env.example`.
+- **For production deployments**: See `DEPLOYMENT.md` for secure image pinning requirements.
 
 ### Container images (CI)
 
-GitHub Actions (`.github/workflows/docker.yml`) builds the app image from `Dockerfile` on pushes to `main`, pull requests against `main`, version tags (`v*`), and manual workflow dispatch. Successful builds on `main` and tagged releases are published to GitHub Container Registry as `ghcr.io/<owner>/dcmapper` (`latest`, semver tags, and `sha-<commit>`). Pull requests build the image but do not push.
+GitHub Actions (`.github/workflows/docker.yml`) builds the app image from `Dockerfile` on pushes to `main`, pull requests against `main`, version tags (`v*`), and manual workflow dispatch. Successful builds on `main` and tagged releases are published to GitHub Container Registry as `ghcr.io/<owner>/dcmapper` with multiple tags:
+
+- **Immutable SHA tags** (e.g., `sha-abc1234`) - **REQUIRED for production** - tied to specific git commits
+- Mutable `latest` tag - for development only, never use in production
+- Mutable semver tags (e.g., `v1.0.0`, `1.0`) - for development only
+
+Pull requests build the image but do not push. Production deployments MUST use immutable SHA tags or digest pinning. See `DEPLOYMENT.md` for details.
 
 ## Future Enhancements (Optional)
 
