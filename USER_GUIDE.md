@@ -2,6 +2,8 @@
 
 This guide explains how to install, configure, run, and operate `dcmapper` as an end user or administrator.
 
+**For production deployments with secure image pinning, see `DEPLOYMENT.md`.**
+
 ## Who This Is For
 
 - **Map viewer (read-only user):** opens the web map and consumes public JSON data.
