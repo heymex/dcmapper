@@ -1,6 +1,7 @@
 import os
 import csv
 import json
+from datetime import date
 from decimal import Decimal
 from pathlib import Path
 from urllib.parse import urlparse
@@ -8,8 +9,17 @@ from urllib.parse import urlparse
 import typer
 from sqlalchemy import select
 
-from app.db.models import EntityType, Location, SiteStatus
+from app.db.models import (
+    EntityType,
+    GeographicRestriction,
+    JurisdictionType,
+    Location,
+    RestrictionKind,
+    RestrictionLifecycle,
+    SiteStatus,
+)
 from app.db.session import Base, SessionLocal, engine
+from app.geo import circle_polygon, parse_geometry_geojson
 
 cli = typer.Typer(help="Admin-only CLI for dcmapper data management.")
 
@@ -75,6 +85,49 @@ def _location_from_dict(record: dict, admin: str) -> Location:
         operator=(record.get("operator") or None),
         status=status,
         confidence=confidence,
+        source=source,
+        notes=(record.get("notes") or None),
+        is_public=_parse_bool(record.get("is_public", True)),
+        created_by=admin,
+        updated_by=admin,
+    )
+
+
+def _parse_optional_date(value: str | None) -> date | None:
+    if value is None or str(value).strip() == "":
+        return None
+    return date.fromisoformat(str(value).strip())
+
+
+def _restriction_from_dict(record: dict, admin: str) -> GeographicRestriction:
+    name = str(record["name"]).strip()
+    jurisdiction_type = JurisdictionType(str(record["jurisdiction_type"]).strip())
+    restriction_kind = RestrictionKind(str(record["restriction_kind"]).strip())
+    lifecycle_status = RestrictionLifecycle(
+        str(record.get("lifecycle_status", "active")).strip()
+    )
+    start_date = _parse_optional_date(record.get("start_date"))
+    end_date = _parse_optional_date(record.get("end_date"))
+    source = validate_source(str(record["source"]))
+
+    if record.get("geometry_geojson"):
+        geometry = parse_geometry_geojson(str(record["geometry_geojson"]))
+    else:
+        latitude = validate_latitude(float(record["center_latitude"]))
+        longitude = validate_longitude(float(record["center_longitude"]))
+        radius_km = float(record.get("radius_km", 5))
+        if radius_km <= 0:
+            raise typer.BadParameter("radius_km must be positive.")
+        geometry = circle_polygon(latitude, longitude, radius_km)
+
+    return GeographicRestriction(
+        name=name,
+        jurisdiction_type=jurisdiction_type,
+        restriction_kind=restriction_kind,
+        lifecycle_status=lifecycle_status,
+        start_date=start_date,
+        end_date=end_date,
+        geometry_geojson=json.dumps(geometry),
         source=source,
         notes=(record.get("notes") or None),
         is_public=_parse_bool(record.get("is_public", True)),
@@ -194,6 +247,34 @@ def seed_data(
 
         db.commit()
         typer.echo(f"Inserted {inserted} locations from {path.name}.")
+    finally:
+        db.close()
+
+
+@cli.command("seed-restrictions")
+def seed_restrictions(
+    path: Path = typer.Argument(..., exists=True, readable=True, resolve_path=True),
+) -> None:
+    _ensure_schema()
+
+    admin = os.getenv("DCMAPPER_ADMIN_NAME") or typer.prompt("Admin name")
+
+    with path.open("r", encoding="utf-8") as handle:
+        loaded = json.load(handle)
+    if not isinstance(loaded, list):
+        raise typer.BadParameter("JSON seed file must contain a list of records.")
+
+    db = SessionLocal()
+    inserted = 0
+    try:
+        for idx, record in enumerate(loaded, start=1):
+            try:
+                db.add(_restriction_from_dict(record, admin))
+                inserted += 1
+            except Exception as exc:
+                raise typer.BadParameter(f"Invalid record at row {idx}: {exc}") from exc
+        db.commit()
+        typer.echo(f"Inserted {inserted} geographic restrictions from {path.name}.")
     finally:
         db.close()
 

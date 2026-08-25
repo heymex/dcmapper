@@ -15,16 +15,23 @@
   <body>
     <header class="topbar">
       <h1>dcmapper</h1>
-      <p>Known local datacenter-related facilities</p>
+      <p>Known local datacenter-related facilities and jurisdiction moratoriums/bans</p>
     </header>
     <main>
       <div id="map"></div>
+      <div class="map-legend" aria-label="Map legend">
+        <div class="legend-title">Restrictions</div>
+        <div class="legend-item"><span class="swatch moratorium"></span> Moratorium (active)</div>
+        <div class="legend-item"><span class="swatch proposed"></span> Proposed / pending</div>
+        <div class="legend-item"><span class="swatch ban"></span> Permanent ban</div>
+        <div class="legend-item"><span class="swatch facility"></span> Known facility</div>
+      </div>
     </main>
     <script
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
-    <script src="/static/js/map.js?v=2"></script>
+    <script src="/static/js/map.js?v=3"></script>
   </body>
 </html>
